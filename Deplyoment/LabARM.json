@@ -1,0 +1,258 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+            "parameters": {
+        "storageSKU": {
+            "type": "string",
+                "allowedValues": [
+                    "Standard_LRS",
+                    "Standard_ZRS",
+                    "Standard_GRS",
+                    "Standard_RAGRS",
+                    "Premium_LRS"
+                ],
+                    "defaultValue": "Standard_LRS",
+                        "metadata": {
+                "description": "The type of replication to use for the storage account."
+            }
+        },   
+        "labNamePrefix": {
+            "type": "string",
+                "maxLength": 8,
+                    "defaultValue": "adflab",
+                        "metadata": {
+                "description": "The value to use for prefix for lab resources. Use only lowercase letters and numbers."
+            }
+        },
+         "sqlUsername": {
+            "type": "string",
+                "maxLength": 128,
+                    "defaultValue": "labadmin",
+                        "metadata": {
+                "description": "The sql server admin username."
+            }
+        },
+         "sqlPassword": {
+            "type": "string",
+                "maxLength": 128,
+                    "defaultValue": "L@bP@ss01",
+                        "metadata": {
+                "description": "The sql server admin password."
+            }
+        },
+         "logicAppEmail": {
+            "type": "string",
+                "maxLength": 128,
+                    "defaultValue": "user@domain.com",
+                        "metadata": {
+                "description": "The email address used to authenticate an Office365 API connection to send emails."
+            }
+        }
+    },
+  "variables": {
+    "storageName": "[concat(toLower(parameters('labNamePrefix')),'storage', substring(uniqueString(resourceGroup().id),0,5))]",
+    "sqlServerName": "[concat(toLower(parameters('labNamePrefix')),'sql', substring(uniqueString(resourceGroup().id),0,5))]",
+    "databaseEdition": "Standard",
+    "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
+    "databaseServiceObjectiveName": "S3",
+    "O365Name": "[concat(toLower(parameters('labNamePrefix')),'O365')]",
+    "logicAppName": "[concat(toLower(parameters('labNamePrefix')),'LogicAppEmail')]"
+  },
+  "resources": [
+    {
+      "name": "[variables('storageName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2016-01-01",
+      "sku": {
+        "name": "[parameters('storageSKU')]"
+      },
+      "kind": "Storage",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "properties": {}
+    },
+    {
+      "name": "[variables('sqlServerName')]",
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "administratorLogin": "[parameters('sqlUsername')]",
+        "administratorLoginPassword": "[parameters('sqlPassword')]",
+        "version": "12.0"
+      },
+      "resources": [
+        {
+          "name": "AllowAllMicrosoftAzureIps",
+          "type": "firewallrules",
+          "apiVersion": "2014-04-01",
+          "location": "[resourceGroup().location]",
+          "properties": {
+            "endIpAddress": "0.0.0.0",
+            "startIpAddress": "0.0.0.0"
+          },
+          "dependsOn": [
+            "[variables('sqlServerName')]"
+          ]
+        },
+        {
+          "name": "AirlinePerformance-OLTP",
+          "type": "databases",
+          "apiVersion": "2015-01-01",
+          "location": "[resourceGroup().location]",
+          "tags": {
+            "displayName": "Database"
+          },
+          "properties": {
+            "edition": "[variables('databaseEdition')]",
+            "collation": "[variables('databaseCollation')]",
+            "requestedServiceObjectiveName": "[variables('databaseServiceObjectiveName')]"
+          },
+          "dependsOn": [
+            "[variables('sqlServerName')]"
+          ]
+        },
+        {
+          "name": "AirlinePerformance-ODS",
+          "type": "databases",
+          "apiVersion": "2015-01-01",
+          "location": "[resourceGroup().location]",
+          "tags": {
+            "displayName": "Database"
+          },
+          "properties": {
+            "edition": "[variables('databaseEdition')]",
+            "collation": "[variables('databaseCollation')]",
+            "requestedServiceObjectiveName": "[variables('databaseServiceObjectiveName')]"
+          },
+          "dependsOn": [
+            "[variables('sqlServerName')]"
+          ]
+        },
+        {
+          "type": "databases",
+          "name": "AirlinePerformance-DW",
+          "apiVersion": "2014-04-01-preview",
+          "location": "[resourceGroup().location]",
+          "properties": {
+            "edition": "DataWarehouse",
+            "collation": "SQL_Latin1_General_CP1_CI_AS",
+            "requestedServiceObjectiveName": "DW100"
+          },
+          "dependsOn": [
+            "[variables('sqlServerName')]"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "name": "[variables('O365Name')]",
+      "apiVersion": "2016-06-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "displayName": "[parameters('logicAppEmail')]",
+        "customParameterValues": {},
+        "api": { "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/office365')]" }
+      },
+      "dependsOn": []
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "name": "[variables('logicAppName')]",
+      "apiVersion": "2016-06-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          },
+          "triggers": {
+            "manual": {
+              "type": "Request",
+              "kind": "Http",
+              "inputs": {
+                "method": "POST",
+                "schema": {
+                  "properties": {
+                    "dataFactoryName": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "pipelineName": {
+                      "type": "string"
+                    },
+                    "recipient": {
+                      "type": "string"
+                    },
+                    "successtype": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "actions": {
+            "Send_an_email": {
+              "runAfter": {},
+              "type": "ApiConnection",
+              "inputs": {
+                "body": {
+                  "Body": "Data Factory: @{triggerBody()?['dataFactoryName']}\nPipeline: @{triggerBody()?['pipelineName']}\nSuccess: @{triggerBody()?['successtype']}\nMessage: @{triggerBody()?['message']}",
+                  "Subject": "[ADF Lab] @{triggerBody()?['dataFactoryName']} @{triggerBody()?['successtype']}",
+                  "To": "@triggerBody()?['recipient']"
+                },
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['office365']['connectionId']"
+                  }
+                },
+                "method": "post",
+                "path": "/Mail"
+              }
+            }
+          },
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "office365": {
+                "connectionId": "[resourceId('Microsoft.Web/connections', variables('O365Name'))]",
+                "connectionName": "office365",
+                "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/office365')]"
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[variables('O365Name')]"
+      ]
+    }
+  ],
+  "outputs": {
+    "sqlServerName": {
+      "type": "string",
+      "value": "[variables('sqlServerName')]"
+    },
+    "storageName": {
+      "type": "string",
+      "value": "[variables('storageName')]"
+    }
+  }
+}
