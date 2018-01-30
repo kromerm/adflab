@@ -6,13 +6,13 @@ Install-Module -Name SqlServer -Scope CurrentUser
 Login-AzureRmAccount
 
 #configurations - FILL OUT WITH DESIRED VALUES
-$dir = "D:\ADFLab"                          #Working directory of where your LabDeploy.ps1 file is located
-$resourceGroupName = "adflab-test"               #Name of Azure resource group to deploy the lab resrouces to, will create if it does not exist
+$dir = "D:\ADFLab-Master\Deployment"        #Working directory of where your LabDeploy.ps1 file is located
+$resourceGroupName = "adflab-test"          #Name of Azure resource group to deploy the lab resrouces to, will create if it does not exist
 $location = "East US 2"                     #Geo location of resource group, resources will use this as well
 $labNamePrefix = "adflab"                   #prefix to append on to unique names such as SQLServer and Storage account
 $sqlUsername = "labadmin"                   #SqlServer admin account
 $sqlPassword = "L@bP@ss01"                  #SqlServer admin password
-$logicAppEmail = "jowen@pragmaticworks.com" #O365 Account to send emails for lab
+$logicAppEmail = "user@domain.com"          #O365 Account to send emails for lab
 $subscriptionName = "Microsoft Engagements" #Name of subscription to use for deployment
 
 #Set subscription
