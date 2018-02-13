@@ -6,13 +6,13 @@ This is a hands-on lab for Azure Data Factory based on the V2 service that walks
 
 Each Lab Module has an accompanying video that walks you through the module overview and learnings. Each video is hosted on our ADF YouTube channel and can be found here:
 
-* Intro Video <https://www.youtube.com/watch?v=idQjGLSHAA4>
-* Lab 1: Setting up ADF V2 and Resource Groups <https://www.youtube.com/watch?v=q463H15kGng>
-* Lab 2: https://www.youtube.com/watch?v=iCQdg6EMjP8
-* Lab 3: https://www.youtube.com/watch?v=_41oR4g7f8Y
-* Lab 4: https://www.youtube.com/watch?v=oWBQE1ecaPc
-* Lab 5: https://www.youtube.com/watch?v=G51jhOQzkwc
-* Lab 6: https://www.youtube.com/watch?v=09gd-U9PF48
-* Lab 7: https://www.youtube.com/watch?v=NF9B8BiJIRQ
-* Lab 8: https://www.youtube.com/watch?v=XQET83eBfcY
-* Lab 9: https://www.youtube.com/watch?v=c6Re1Fem5tA
+* [Intro Video](https://www.youtube.com/watch?v=idQjGLSHAA4)
+* [Lab 1: Setting up ADF V2 and Resource Groups](https://www.youtube.com/watch?v=q463H15kGng)
+* [Lab 2:](https://www.youtube.com/watch?v=iCQdg6EMjP8)
+* [Lab 3:](https://www.youtube.com/watch?v=_41oR4g7f8Y)
+* [Lab 4:](https://www.youtube.com/watch?v=oWBQE1ecaPc)
+* [Lab 5:](https://www.youtube.com/watch?v=G51jhOQzkwc)
+* [Lab 6:](https://www.youtube.com/watch?v=09gd-U9PF48)
+* [Lab 7:](https://www.youtube.com/watch?v=NF9B8BiJIRQ)
+* [Lab 8:](https://www.youtube.com/watch?v=XQET83eBfcY)
+* [Lab 9:](https://www.youtube.com/watch?v=c6Re1Fem5tA)
