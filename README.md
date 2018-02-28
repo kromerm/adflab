@@ -4,6 +4,8 @@ Azure Data Factory (ADF) is a Microsoft Azure Platform-as-a-Service offering tha
 
 This is a hands-on lab for Azure Data Factory based on the V2 service that walks you through building an ETL pipeline as well as Lift & Shift of your SSIS on-prem packages into ADF.
 
+SPECIAL NOTE: There are several very large database backup files in the Deployment Files folders. I have shredded those into ZIP files to fit within the Github file size restrictions. You will need to download them and use 7zip to put them back together before running the deployment scripts.
+
 Each Lab Module has an accompanying video that walks you through the module overview and learnings. Each video is hosted on our ADF YouTube channel and can be found here:
 
 * [Intro Video](https://www.youtube.com/watch?v=idQjGLSHAA4)
