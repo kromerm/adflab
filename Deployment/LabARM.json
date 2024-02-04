@@ -136,12 +136,16 @@
         {
           "type": "databases",
           "name": "AirlinePerformance-DW",
-          "apiVersion": "2014-04-01-preview",
+          "apiVersion": "2023-05-01-preview",
           "location": "[resourceGroup().location]",
+          "sku": {
+            "name": "DataWarehouse",
+            "tier": "DataWarehouse",
+            "capacity": 900
+          },
+          "kind": "v12.0,user,datawarehouse,gen2",
           "properties": {
-            "edition": "DataWarehouse",
             "collation": "SQL_Latin1_General_CP1_CI_AS",
-            "requestedServiceObjectiveName": "DW100"
           },
           "dependsOn": [
             "[variables('sqlServerName')]"
